@@ -3,92 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module Test - Rameet</title>
+    <title>For Rameet ❤️</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff0f3; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        #app { text-align: center; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 350px; position: relative; z-index: 10; transition: 0.3s; }
-        .emoji { font-size: 80px; margin-bottom: 20px; transition: 0.3s; }
-        h1 { color: #590d22; font-size: 24px; margin-bottom: 30px; line-height: 1.4; }
-        .buttons { display: flex; justify-content: center; align-items: center; gap: 20px; height: 120px; position: relative; }
-        #yesBtn { background: #ff4d6d; color: white; padding: 15px 30px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; z-index: 1000; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #noBtn { background: #eeeeee; color: #555; padding: 15px 30px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; position: absolute; transition: 0.15s ease-out; z-index: 999; }
-        #msg { margin-top: 20px; color: #ff85a1; font-weight: bold; font-style: italic; height: 20px; font-size: 14px; }
-        .hidden { display: none; }
-        .heart { position: fixed; bottom: -10%; animation: float 4s linear forwards; z-index: 1; }
-        @keyframes float { to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
+        :root { --primary: #ff4d6d; --secondary: #ff85a1; }
+        body { font-family: 'Inter', sans-serif; background: #fff0f3; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        #app { text-align: center; z-index: 10; transition: all 0.5s ease; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); max-width: 90%; }
+        .gif-box { font-size: 80px; margin-bottom: 20px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        h1 { color: #590d22; font-size: 28px; transition: 0.3s; }
+        .btn-wrap { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 30px; min-height: 100px; }
+        button { padding: 15px 35px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; }
+        #yesBtn { background: var(--primary); color: white; z-index: 1000; box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3); }
+        #noBtn { background: #e0e0e0; color: #555; z-index: 100; transition: 0.1s; }
+        #commentary { margin-top: 20px; color: var(--secondary); font-style: italic; font-size: 16px; height: 20px; }
+        .celebrate-text { display: none; }
+        .floating-heart { position: fixed; color: var(--primary); pointer-events: none; z-index: 1; animation: floatUp 4s linear forwards; }
+        @keyframes floatUp { to { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
     </style>
 </head>
 <body>
 
     <div id="app">
-        <div id="ask">
-            <div id="mainEmoji" class="emoji">🌸</div>
-            <h1>Rameet, will you be my Valentine?</h1>
-            <div class="buttons">
-                <button id="yesBtn" onclick="celebrate()">Yes!</button>
-                <button id="noBtn" onmouseover="moveNo()" onclick="moveNo()">No</button>
+        <div id="game-ui">
+            <div id="emoji" class="gif-box">🌸</div>
+            <h1 id="headline">Rameet, will you be my Valentine?</h1>
+            <p id="commentary"></p>
+            <div class="btn-wrap">
+                <button id="yesBtn" onclick="initSuccess()">Yes!</button>
+                <button id="noBtn" onmouseover="handleNo()" onclick="handleNo()">No</button>
             </div>
-            <div id="msg"></div>
         </div>
 
-        <div id="success" class="hidden">
-            <div class="emoji">🥰</div>
-            <h1 style="font-size: 40px; color: #ff4d6d;">I KNEW IT!</h1>
-            <p style="font-size: 20px; color: #590d22;">See you soon, Rameet! ❤️</p>
-            <p style="margin-top: 20px; font-weight: bold;">- Nitin</p>
+        <div id="success-ui" style="display: none;">
+            <div class="gif-box">🎈🥰</div>
+            <h1 style="font-size: 48px; color: var(--primary);">I KNEW IT!</h1>
+            <p style="font-size: 20px;">Prepared to be pampered on the 14th, Rameet.</p>
+            <p style="font-size: 14px; margin-top: 20px;">- Love, Nitin</p>
         </div>
     </div>
 
     <script>
-        let clicks = 0;
+        let noCount = 0;
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
-        const msg = document.getElementById('msg');
-        const emoji = document.getElementById('mainEmoji');
+        const headline = document.getElementById('headline');
+        const commentary = document.getElementById('commentary');
+        const emoji = document.getElementById('emoji');
 
-        const phrases = [
-            "Wait, why?", "Rameet, think about it!", "Is the mouse broken?", 
-            "Give it another thought!", "I'll buy you momos!", "And chocolate!", 
-            "Okay, now you're being mean!", "Look how big 'Yes' is!", "Just click it!"
+        const responses = [
+            "Wait, what?", "Is the mouse broken?", "Rameet... think about it!", 
+            "I'll buy you chocolate!", "And pizza!", "Okay, now you're just being mean.", 
+            "I'm not letting you click that.", "Look how big the 'Yes' is!", 
+            "Just give up!", "You're clicking everything BUT the right answer."
         ];
 
         const emojis = ["🤨", "😳", "🥺", "😢", "😭", "😤", "🫠"];
 
-        function moveNo() {
-            clicks++;
-            // Calculate random position within window
+        function handleNo() {
+            noCount++;
+            
+            // 1. Move the No button within visible bounds
             const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
             const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-            
             noBtn.style.position = 'fixed';
             noBtn.style.left = x + 'px';
             noBtn.style.top = y + 'px';
 
-            // Make Yes Button Grow
-            const scale = 1 + (clicks * 0.4);
-            yesBtn.style.transform = `scale(${scale})`;
+            // 2. Make Yes button grow (Aggressively)
+            const newScale = 1 + (noCount * 0.4);
+            yesBtn.style.transform = `scale(${newScale})`;
+            
+            // 3. Update Text & Emojis
+            commentary.innerText = responses[Math.min(noCount - 1, responses.length - 1)];
+            emoji.innerText = emojis[Math.min(noCount - 1, emojis.length - 1)];
 
-            // Update Text & Emoji
-            msg.innerText = phrases[Math.min(clicks-1, phrases.length-1)];
-            emoji.innerText = emojis[Math.min(clicks-1, emojis.length-1)];
+            // 4. Shake effect
+            document.getElementById('app').style.animation = 'none';
+            document.getElementById('app').offsetHeight; // trigger reflow
+            document.getElementById('app').style.animation = 'shake 0.3s';
         }
 
-        function celebrate() {
-            document.getElementById('ask').classList.add('hidden');
-            document.getElementById('success').classList.remove('hidden');
+        function initSuccess() {
+            document.getElementById('game-ui').style.display = 'none';
+            document.getElementById('success-ui').style.display = 'block';
             document.body.style.background = '#ffcad4';
+            
             setInterval(createHeart, 150);
         }
 
         function createHeart() {
             const h = document.createElement('div');
-            h.classList.add('heart');
-            h.innerHTML = ['❤️','💖','🌸','✨','🌹'][Math.floor(Math.random()*5)];
+            h.classList.add('floating-heart');
+            h.innerHTML = ['❤️', '💖', '💌', '🌹'][Math.floor(Math.random() * 4)];
             h.style.left = Math.random() * 100 + 'vw';
-            h.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            h.style.top = '100vh';
+            h.style.fontSize = (Math.random() * 30 + 10) + 'px';
             document.body.appendChild(h);
             setTimeout(() => h.remove(), 4000);
         }
     </script>
+
+    <style>
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
 </body>
 </html>
